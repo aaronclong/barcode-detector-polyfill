@@ -1,15 +1,15 @@
 {
-  "name": "barcode-detection",
+  "name": "@aaronclong/barcode-detection-polyfill",
   "type": "module",
   "version": "1.0.0",
   "description": "Polyfill for the Barcode Detection API based on Dynamsoft Barcode Reader or ZXing.",
-  "homepage": "https://github.com/xulihang/barcode-detector-polyfill/#readme",
+  "homepage": "https://github.com/aaronclong/barcode-detector-polyfill/#readme",
   "license": "MIT",
   "author": {
-    "name": "Xu Lihang"
+    "name": "Aaron Long"
   },
   "bugs": {
-    "url": "https://github.com/xulihang/barcode-detector-polyfill/issues"
+    "url": "https://github.com/aaronclong/barcode-detector-polyfill/issues"
   },
   "files": [
     "dist/*.js",
@@ -18,14 +18,21 @@
   ],
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/xulihang/barcode-detector-polyfill.git"
+    "url": "git+https://github.com/aaronclong/barcode-detector-polyfill"
   },
+  "contributors": [
+    {
+      "name": "Xu Lihang",
+      "url": "https://github.com/xulihang/barcode-detector-polyfill"
+    }
+  ],
   "source": "src/barcode-detector.ts",
   "main": "./dist/barcode-detector.js",
   "exports": {
     "require": "./dist/barcode-detector.cjs",
     "default": "./dist/barcode-detector.modern.js"
   },
+  "module": "./dist/foo.module.mjs",
   "unpkg": "./dist/barcode-detector.umd.js",
   "amdName": "BarcodeDetectorPolyfill",
   "scripts": {
