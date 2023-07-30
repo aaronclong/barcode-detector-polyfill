@@ -8,6 +8,9 @@
   "author": {
     "name": "Aaron Long"
   },
+  "engines": {
+    "node": ">=18.0.0"
+  },
   "bugs": {
     "url": "https://github.com/aaronclong/barcode-detector-polyfill/issues"
   },
@@ -48,7 +51,8 @@
     "registry": "https://registry.npmjs.org/"
   },
   "devDependencies": {
-    "microbundle": "^0.15.0"
+    "microbundle": "^0.15.0",
+    "typescript": "^5.1.6"
   },
   "keywords": [
     "barcode",
