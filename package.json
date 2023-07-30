@@ -13,8 +13,11 @@
   },
   "files": [
     "dist/*.js",
+    "dist/*.js.map",
     "dist/*.cjs",
+    "dist/*.cjs.map",
     "dist/*.mjs",
+    "dist/*.mjs.map",
     "dist/*.d.ts"
   ],
   "repository": {
