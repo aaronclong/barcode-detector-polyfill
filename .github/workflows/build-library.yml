@@ -1,0 +1,17 @@
+name: build library 🚀
+on: [push]
+jobs:
+  build_library:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - uses: actions/setup-node@v3
+        with:
+          node-version: 18
+      - run: npm ci
+      - run: npm build
+      - name: Archive build
+        uses: actions/upload-artifact@v3
+        with:
+          name: library-build-dist
+          path: dist/
