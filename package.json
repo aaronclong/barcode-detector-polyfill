@@ -45,7 +45,8 @@
   "amdName": "BarcodeDetectorPolyfill",
   "scripts": {
     "build": "microbundle build --globals dynamsoft-javascript-barcode=Dynamsoft.DBR,@zxing/library=ZXingBrowser",
-    "dev": "microbundle watch"
+    "dev": "microbundle watch",
+    "install:peers": "npx npm-install-peers -- -y"
   },
   "publishConfig": {
     "registry": "https://registry.npmjs.org/"
@@ -65,5 +66,8 @@
   "dependencies": {
     "@zxing/library": "0.20.0",
     "dynamsoft-javascript-barcode": "9.6.20"
+  },
+  "peerDependencies": {
+    "@zxing/library": "0.20.0"
   }
 }
