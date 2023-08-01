@@ -19,8 +19,8 @@ export type BarcodeFormat =
   | "upc_e"
   | "unknown";
 
-export interface IBarcodeOptions {
-  formats: BarcodeFormat[];
+export interface IBarcodeOptions<BFormat = BarcodeFormat> {
+  formats: BFormat[];
 }
 
 export interface DetectedBarcode {
@@ -30,15 +30,17 @@ export interface DetectedBarcode {
   rawValue: string;
 }
 
-export interface IBarcodeDetector {
-  detect(): Promise<DetectedBarcode>;
+export interface IBarcodeDetector<BFormat = BarcodeFormat> {
+  detect(image: ImageBitmapSource): Promise<DetectedBarcode[]>;
 }
 
-export abstract class BarcodeDetectorAbs implements IBarcodeDetector {
-  public constructor(options?: IBarcodeOptions) {}
-  public abstract detect(): Promise<DetectedBarcode>;
+export abstract class BarcodeDetectorAbs<BFormat = BarcodeFormat>
+  implements IBarcodeDetector<BFormat>
+{
+  public constructor(options?: IBarcodeOptions<BFormat>) {}
+  public abstract detect(image: ImageBitmapSource): Promise<DetectedBarcode[]>;
 
   public static getSupportedFormats(): Promise<BarcodeFormat[]> {
-    return Promise.resolve(["unknown"]);
+    return Promise.resolve<BarcodeFormat[]>(["unknown"]);
   }
 }
