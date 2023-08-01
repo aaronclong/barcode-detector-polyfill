@@ -36,6 +36,7 @@
   "source": "src/barcode-detector.ts",
   "main": "./dist/barcode-detector.js",
   "exports": {
+    "types": "./dist/barcode-detector.d.ts",
     "import": "./dist/barcode-detector.cjs",
     "require": "./dist/barcode-detector.cjs",
     "default": "./dist/barcode-detector.modern.js"
@@ -44,7 +45,7 @@
   "unpkg": "dist/barcode-detector.umd.js",
   "amdName": "BarcodeDetectorPolyfill",
   "scripts": {
-    "build": "microbundle build --globals dynamsoft-javascript-barcode=Dynamsoft.DBR,@zxing/library=ZXingBrowser",
+    "build": "microbundle build --globals @zxing/library=ZXingBrowser",
     "dev": "microbundle watch",
     "install:peers": "npx npm-install-peers -- -y"
   },
