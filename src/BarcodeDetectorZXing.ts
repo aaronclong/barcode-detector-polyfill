@@ -1,136 +1,172 @@
-import { BinaryBitmap, BrowserMultiFormatReader, HTMLCanvasElementLuminanceSource, HTMLVisualMediaElement, HybridBinarizer, MultiFormatReader } from "@zxing/library";
-import { BarcodeDetectorOptions, BarcodeFormat, DetectedBarcode, Point2D } from "./Definitions";
+import { BinaryBitmap, HybridBinarizer } from "@zxing/library";
 import * as ZXing from "@zxing/library";
+import { BrowserMultiFormatReader } from "@zxing/browser";
+import {
+  BarcodeDetectorAbs,
+  IBarcodeOptions,
+  BarcodeFormat,
+  DetectedBarcode,
+} from "./BarcodeApi.js";
 
-const mapFormat = new Map<BarcodeFormat, ZXing.BarcodeFormat>([
-  [ "aztec", ZXing.BarcodeFormat.AZTEC ],
-  [ "code_39", ZXing.BarcodeFormat.CODE_39 ],
-  [ "code_128", ZXing.BarcodeFormat.CODE_128 ],
-  [ "data_matrix", ZXing.BarcodeFormat.DATA_MATRIX ],
-  [ "ean_8", ZXing.BarcodeFormat.EAN_8 ],
-  [ "ean_13", ZXing.BarcodeFormat.EAN_13 ],
-  [ "itf", ZXing.BarcodeFormat.ITF ],
-  [ "pdf417", ZXing.BarcodeFormat.PDF_417 ],
-  [ "qr_code", ZXing.BarcodeFormat.QR_CODE ],
-  [ "upc_a", ZXing.BarcodeFormat.UPC_A ],
-  [ "upc_e", ZXing.BarcodeFormat.UPC_E ]
-]) 
+type ZwingBarcodeFormat =
+  | BarcodeFormat
+  | "aztec"
+  | "code_39"
+  | "code_128"
+  | "data_matrix"
+  | "ean_8"
+  | "ean_13"
+  | "itf"
+  | "pdf417"
+  | "qr_code"
+  | "upc_a"
+  | "upc_e";
 
-const mapFormatInv = new Map<ZXing.BarcodeFormat, BarcodeFormat>(
+const mapFormat = new Map<ZwingBarcodeFormat, ZXing.BarcodeFormat>([
+  ["aztec", ZXing.BarcodeFormat.AZTEC],
+  ["code_39", ZXing.BarcodeFormat.CODE_39],
+  ["code_128", ZXing.BarcodeFormat.CODE_128],
+  ["data_matrix", ZXing.BarcodeFormat.DATA_MATRIX],
+  ["ean_8", ZXing.BarcodeFormat.EAN_8],
+  ["ean_13", ZXing.BarcodeFormat.EAN_13],
+  ["itf", ZXing.BarcodeFormat.ITF],
+  ["pdf417", ZXing.BarcodeFormat.PDF_417],
+  ["qr_code", ZXing.BarcodeFormat.QR_CODE],
+  ["upc_a", ZXing.BarcodeFormat.UPC_A],
+  ["upc_e", ZXing.BarcodeFormat.UPC_E],
+]);
+
+const mapFormatInv = new Map<ZXing.BarcodeFormat, ZwingBarcodeFormat>(
   Array.from(mapFormat).map(([key, val]) => [val, key])
-)
+);
 
-const allSupportedFormats : BarcodeFormat[] = Array.from(mapFormat.keys())
+const allSupportedFormats: ZwingBarcodeFormat[] = Array.from(mapFormat.keys());
 
-export default class BarcodeDetectorZXing {
-  private reader: MultiFormatReader|BrowserMultiFormatReader;
-  private canvas: HTMLCanvasElement;
-  constructor (barcodeDetectorOptions? : BarcodeDetectorOptions) {
-    // SPEC: A series of BarcodeFormats to search for in the subsequent detect() calls. If not present then the UA SHOULD 
+/**
+ * This code was originally copied from here:
+ *   https://github.com/zxing-js/browser/blob/d4c22f735f5304b16f2f3d9497a8c82683f5cf68/src/common/HTMLCanvasElementLuminanceSource.ts#L19-L42
+ *
+ * @param imageBuffer
+ * @param width
+ * @param height
+ * @returns
+ */
+function toGrayscaleBuffer(
+  imageBuffer: Uint8ClampedArray,
+  width: number,
+  height: number
+): Uint8ClampedArray {
+  const grayscaleBuffer = new Uint8ClampedArray(width * height);
+  for (let i = 0, j = 0, length = imageBuffer.length; i < length; i += 4, j++) {
+    let gray;
+    const alpha = imageBuffer[i + 3];
+    // The color of fully-transparent pixels is irrelevant. They are often, technically, fully-transparent
+    // black (0 alpha, and then 0 RGB). They are often used, of course as the "white" area in a
+    // barcode image. Force any such pixel to be white:
+    if (alpha === 0) {
+      gray = 0xff;
+    } else {
+      const pixelR = imageBuffer[i];
+      const pixelG = imageBuffer[i + 1];
+      const pixelB = imageBuffer[i + 2];
+      // .299R + 0.587G + 0.114B (YUV/YIQ for PAL and NTSC),
+      // (306*R) >> 10 is approximately equal to R*0.299, and so on.
+      // 0x200 >> 10 is 0.5, it implements rounding.
+      // tslint:disable-next-line:no-bitwise
+      gray = (306 * pixelR + 601 * pixelG + 117 * pixelB + 0x200) >> 10;
+    }
+    grayscaleBuffer[j] = gray;
+  }
+  return grayscaleBuffer;
+}
+
+export default class BarcodeDetectorZXing extends BarcodeDetectorAbs<ZwingBarcodeFormat> {
+  private reader: BrowserMultiFormatReader;
+  constructor(barcodeDetectorOptions?: IBarcodeOptions<ZwingBarcodeFormat>) {
+    super();
+
+    // SPEC: A series of BarcodeFormats to search for in the subsequent detect() calls. If not present then the UA SHOULD
     // search for all supported formats.
     const formats = barcodeDetectorOptions?.formats ?? allSupportedFormats;
 
     // SPEC: If barcodeDetectorOptions.formats is present and empty, then throw a new TypeError.
-    if (formats.length === 0) {
+    // SPEC: If barcodeDetectorOptions.formats is present and contains unknown, then throw a new TypeError.
+    if (formats.length === 0 || formats.includes("unknown")) {
       throw new TypeError(""); // TODO pick message
     }
 
-    // SPEC: If barcodeDetectorOptions.formats is present and contains unknown, then throw a new TypeError.
-    if (formats.includes("unknown")) {
-      throw new TypeError(""); // TODO pick message
-    }
-    if ("ZXingBrowser" in window) {
-      let ZXingBrowser:any = window["ZXingBrowser"];
-      this.reader = new ZXingBrowser.BrowserMultiFormatReader();
-    }else{
-      const hints = new Map([
-        [ ZXing.DecodeHintType.POSSIBLE_FORMATS, formats.map(format => mapFormat.get(format)) ]
-      ]);
-      this.reader = new MultiFormatReader();
-      this.reader.setHints(hints);
-    }
-    this.canvas = document.createElement("canvas");
+    const hints = new Map([
+      [
+        ZXing.DecodeHintType.POSSIBLE_FORMATS,
+        formats.map((format) => mapFormat.get(format)),
+      ],
+    ]);
+    this.reader = new BrowserMultiFormatReader(hints);
   }
 
-  static async getSupportedFormats() : Promise<BarcodeFormat[]> {
+  static async getSupportedFormats(): Promise<BarcodeFormat[]> {
     return allSupportedFormats;
   }
 
-  async detect(image : ImageBitmapSource) : Promise<DetectedBarcode[]> {
-    let result:ZXing.Result;
-    let detectedBarcodes:DetectedBarcode[] = [];
-    let source;
-    if ("ZXingBrowser" in window) {
-      source = image;
-    }else{
-      if (image instanceof HTMLCanvasElement) {
-        source = this.createBinaryBitmapFromCanvas(image);
-      } else {
-        source = this.createBinaryBitmap(image as HTMLVisualMediaElement);
-      }
-    }
+  public detect(image: ImageBitmapSource): Promise<DetectedBarcode[]> {
+    const detectedBarcodes: DetectedBarcode[] = [];
+
     try {
-      result = this.reader.decode(source);
+      const source = this.decodeImage(image);
+      const detectedBarcode = BarcodeDetectorZXing.wrapResult(source);
+      detectedBarcodes.push(detectedBarcode);
     } catch (error) {
       //not found or not supported image source
-      return detectedBarcodes;
+      // TODO: add logger here
     }
-    
-    let detectedBarcode:DetectedBarcode = this.wrapResult(result);
-    detectedBarcodes.push(detectedBarcode);
-    return detectedBarcodes;
+
+    return Promise.resolve(detectedBarcodes);
   }
 
-  createBinaryBitmap(mediaElement: HTMLVisualMediaElement): BinaryBitmap {
-    const ctx = this.canvas.getContext("2d");
-    let width;
-    let height;
-    if (mediaElement instanceof HTMLVideoElement) {
-      width = mediaElement.videoWidth;
-      height = mediaElement.videoHeight;
-    }else{
-      width = mediaElement.naturalWidth;
-      height = mediaElement.naturalHeight;
+  private decodeImage(image: ImageBitmapSource): ZXing.Result {
+    if (image instanceof HTMLCanvasElement) {
+      return this.reader.decodeFromCanvas(image);
+    } else if (image instanceof ImageData) {
+      const source = new ZXing.RGBLuminanceSource(
+        toGrayscaleBuffer(image.data, image.width, image.height),
+        image.width,
+        image.height
+      );
+      const binarizer = new HybridBinarizer(source);
+      const bitmap = new BinaryBitmap(binarizer);
+      return this.reader.decodeBitmap(bitmap);
+    } else if (image instanceof Blob) {
+      throw new Error("Blob is currently not supported");
     }
-    this.canvas.width  = width;
-    this.canvas.height = height;
-    ctx!.drawImage(mediaElement, 0, 0, width, height);
-    return this.createBinaryBitmapFromCanvas(this.canvas);
+
+    throw new Error("Cannot parse image provided");
   }
 
-  createBinaryBitmapFromCanvas(cvs: HTMLCanvasElement):BinaryBitmap {
-    const luminanceSource = new HTMLCanvasElementLuminanceSource(cvs);
-    const hybridBinarizer = new HybridBinarizer(luminanceSource);
-    const bitmap = new BinaryBitmap(hybridBinarizer);
-    return bitmap;
-  }
-
-  wrapResult(result:ZXing.Result):DetectedBarcode{
+  private static wrapResult(result: ZXing.Result): DetectedBarcode {
     let minX: number, minY: number, maxX: number, maxY: number;
-    
+
     //set initial values
-    let points = result.getResultPoints();
+    const points = result.getResultPoints();
     minX = points[0].getX();
     minY = points[0].getY();
     maxX = points[0].getX();
     maxY = points[0].getY();
 
-    points.forEach(point => {
+    points.forEach((point) => {
       const x = point.getX();
       const y = point.getY();
-      minX = Math.min(x,minX);
-      minY = Math.min(y,minY);
-      maxX = Math.max(x,maxX);
-      maxY = Math.max(y,maxY);
-
+      minX = Math.min(x, minX);
+      minY = Math.min(y, minY);
+      maxX = Math.max(x, maxX);
+      maxY = Math.max(y, maxY);
     });
-    
+
     let boundingBox = new DOMRectReadOnly(minX, minY, maxX - minX, maxY - minY);
-    
-    let p1:Point2D = {x:boundingBox.left,y:boundingBox.top};
-    let p2:Point2D = {x:boundingBox.right,y:boundingBox.top};
-    let p3:Point2D = {x:boundingBox.right,y:boundingBox.bottom};
-    let p4:Point2D = {x:boundingBox.left,y:boundingBox.bottom};
+
+    const p1 = { x: boundingBox.left, y: boundingBox.top };
+    const p2 = { x: boundingBox.right, y: boundingBox.top };
+    const p3 = { x: boundingBox.right, y: boundingBox.bottom };
+    const p4 = { x: boundingBox.left, y: boundingBox.bottom };
 
     const cornerPoints = [p1, p2, p3, p4];
 
@@ -139,11 +175,11 @@ export default class BarcodeDetectorZXing {
       barcodeFormat = "unknown";
     }
 
-    return { 
-      boundingBox: boundingBox, 
+    return {
+      boundingBox: boundingBox,
       rawValue: result.getText(),
       format: barcodeFormat,
-      cornerPoints: cornerPoints
+      cornerPoints: cornerPoints,
     };
   }
 }
