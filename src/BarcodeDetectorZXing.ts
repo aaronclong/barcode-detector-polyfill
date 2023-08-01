@@ -80,7 +80,7 @@ function toGrayscaleBuffer(
   return grayscaleBuffer;
 }
 
-export default class BarcodeDetectorZXing extends BarcodeDetectorAbs<ZwingBarcodeFormat> {
+export class BarcodeDetectorZXing extends BarcodeDetectorAbs<ZwingBarcodeFormat> {
   private reader: BrowserMultiFormatReader;
   constructor(barcodeDetectorOptions?: IBarcodeOptions<ZwingBarcodeFormat>) {
     super();
@@ -104,8 +104,8 @@ export default class BarcodeDetectorZXing extends BarcodeDetectorAbs<ZwingBarcod
     this.reader = new BrowserMultiFormatReader(hints);
   }
 
-  static async getSupportedFormats(): Promise<BarcodeFormat[]> {
-    return allSupportedFormats;
+  public static getSupportedFormats(): Promise<ZwingBarcodeFormat[]> {
+    return Promise.resolve([...allSupportedFormats]);
   }
 
   public detect(image: ImageBitmapSource): Promise<DetectedBarcode[]> {
