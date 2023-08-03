@@ -36,10 +36,10 @@
   "source": "src/barcode-detector.ts",
   "main": "./dist/barcode-detector.js",
   "exports": {
-    "types": "./dist/barcode-detector.d.ts",
-    "import": "./dist/barcode-detector.cjs",
+    "types": "./didirst/barcode-detector.d.ts",
+    "import": "./dist/barcode-detector.mjs",
     "require": "./dist/barcode-detector.cjs",
-    "default": "./dist/barcode-detector.modern.js"
+    "default": "./dist/barcode-detector.mjs"
   },
   "module": "dist/foo.module.mjs",
   "unpkg": "dist/barcode-detector.umd.js",
@@ -47,13 +47,16 @@
   "scripts": {
     "build": "microbundle build --globals @zxing/library=ZXingBrowser",
     "dev": "microbundle watch",
-    "install:peers": "npx npm-install-peers -- -y"
+    "install:peers": "npx npm-install-peers -- -y",
+    "build:r": "rollup -c rollup.config.js"
   },
   "publishConfig": {
     "registry": "https://registry.npmjs.org/"
   },
   "devDependencies": {
-    "microbundle": "^0.15.0",
+    "rollup": "^3.27.0",
+    "rollup-plugin-dts": "^5.3.1",
+    "rollup-plugin-esbuild": "^5.0.0",
     "typescript": "^5.1.6"
   },
   "keywords": [
@@ -64,9 +67,8 @@
     "pdf417",
     "qrcode"
   ],
-  "dependencies": {},
   "peerDependencies": {
-    "@zxing/library": "^0.20.0",
-    "@zxing/browser": "^0.1.4"
+    "@zxing/browser": "^0.1.4",
+    "@zxing/library": "^0.20.0"
   }
 }
