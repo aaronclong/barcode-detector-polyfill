@@ -1,4 +1,5 @@
 import esbuild from "rollup-plugin-esbuild";
+import { dts } from "rollup-plugin-dts";
 
 export default {
   input: "src/index.ts",
@@ -13,7 +14,8 @@ export default {
       format: "es",
       sourcemap: true,
     },
+    { file: "dist/index.d.ts", format: "es" },
   ],
-  plugins: [esbuild()],
+  plugins: [esbuild(), dts()],
   external: ["@zxing/library", "@zxing/browser"],
 };
