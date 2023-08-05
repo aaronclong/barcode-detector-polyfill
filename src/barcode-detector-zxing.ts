@@ -1,5 +1,11 @@
-import { BinaryBitmap, HybridBinarizer } from "@zxing/library";
-import * as ZXing from "@zxing/library";
+import {
+  BinaryBitmap,
+  HybridBinarizer,
+  RGBLuminanceSource,
+  BarcodeFormat as ZXBFormat,
+  Result as ZXResult,
+  DecodeHintType,
+} from "@zxing/library";
 import { BrowserMultiFormatReader } from "@zxing/browser";
 import {
   BarcodeDetectorAbs,
@@ -8,7 +14,7 @@ import {
   DetectedBarcode,
 } from "./barcode-api.js";
 
-type ZwingBarcodeFormat =
+type ZXBarcodeFormat =
   | BarcodeFormat
   | "aztec"
   | "code_39"
@@ -22,25 +28,25 @@ type ZwingBarcodeFormat =
   | "upc_a"
   | "upc_e";
 
-const mapFormat = new Map<ZwingBarcodeFormat, ZXing.BarcodeFormat>([
-  ["aztec", ZXing.BarcodeFormat.AZTEC],
-  ["code_39", ZXing.BarcodeFormat.CODE_39],
-  ["code_128", ZXing.BarcodeFormat.CODE_128],
-  ["data_matrix", ZXing.BarcodeFormat.DATA_MATRIX],
-  ["ean_8", ZXing.BarcodeFormat.EAN_8],
-  ["ean_13", ZXing.BarcodeFormat.EAN_13],
-  ["itf", ZXing.BarcodeFormat.ITF],
-  ["pdf417", ZXing.BarcodeFormat.PDF_417],
-  ["qr_code", ZXing.BarcodeFormat.QR_CODE],
-  ["upc_a", ZXing.BarcodeFormat.UPC_A],
-  ["upc_e", ZXing.BarcodeFormat.UPC_E],
+const mapFormat = new Map<ZXBarcodeFormat, ZXBFormat>([
+  ["aztec", ZXBFormat.AZTEC],
+  ["code_39", ZXBFormat.CODE_39],
+  ["code_128", ZXBFormat.CODE_128],
+  ["data_matrix", ZXBFormat.DATA_MATRIX],
+  ["ean_8", ZXBFormat.EAN_8],
+  ["ean_13", ZXBFormat.EAN_13],
+  ["itf", ZXBFormat.ITF],
+  ["pdf417", ZXBFormat.PDF_417],
+  ["qr_code", ZXBFormat.QR_CODE],
+  ["upc_a", ZXBFormat.UPC_A],
+  ["upc_e", ZXBFormat.UPC_E],
 ]);
 
-const mapFormatInv = new Map<ZXing.BarcodeFormat, ZwingBarcodeFormat>(
+const mapFormatInv = new Map<ZXBFormat, ZXBarcodeFormat>(
   Array.from(mapFormat).map(([key, val]) => [val, key])
 );
 
-const allSupportedFormats: ZwingBarcodeFormat[] = Array.from(mapFormat.keys());
+const allSupportedFormats: ZXBarcodeFormat[] = Array.from(mapFormat.keys());
 
 /**
  * This code was originally copied from here:
@@ -80,9 +86,9 @@ function toGrayscaleBuffer(
   return grayscaleBuffer;
 }
 
-export class BarcodeDetectorZXing extends BarcodeDetectorAbs<ZwingBarcodeFormat> {
+export class BarcodeDetectorZXing extends BarcodeDetectorAbs<ZXBarcodeFormat> {
   private reader: BrowserMultiFormatReader;
-  constructor(barcodeDetectorOptions?: IBarcodeOptions<ZwingBarcodeFormat>) {
+  constructor(barcodeDetectorOptions?: IBarcodeOptions<ZXBarcodeFormat>) {
     super();
 
     // SPEC: A series of BarcodeFormats to search for in the subsequent detect() calls. If not present then the UA SHOULD
@@ -97,14 +103,14 @@ export class BarcodeDetectorZXing extends BarcodeDetectorAbs<ZwingBarcodeFormat>
 
     const hints = new Map([
       [
-        ZXing.DecodeHintType.POSSIBLE_FORMATS,
+        DecodeHintType.POSSIBLE_FORMATS,
         formats.map((format) => mapFormat.get(format)),
       ],
     ]);
     this.reader = new BrowserMultiFormatReader(hints);
   }
 
-  public static getSupportedFormats(): Promise<ZwingBarcodeFormat[]> {
+  public static getSupportedFormats(): Promise<ZXBarcodeFormat[]> {
     return Promise.resolve([...allSupportedFormats]);
   }
 
@@ -123,11 +129,11 @@ export class BarcodeDetectorZXing extends BarcodeDetectorAbs<ZwingBarcodeFormat>
     return Promise.resolve(detectedBarcodes);
   }
 
-  private decodeImage(image: ImageBitmapSource): ZXing.Result {
+  private decodeImage(image: ImageBitmapSource): ZXResult {
     if (image instanceof HTMLCanvasElement) {
       return this.reader.decodeFromCanvas(image);
     } else if (image instanceof ImageData) {
-      const source = new ZXing.RGBLuminanceSource(
+      const source = new RGBLuminanceSource(
         toGrayscaleBuffer(image.data, image.width, image.height),
         image.width,
         image.height
@@ -142,15 +148,13 @@ export class BarcodeDetectorZXing extends BarcodeDetectorAbs<ZwingBarcodeFormat>
     throw new Error("Cannot parse image provided");
   }
 
-  private static wrapResult(result: ZXing.Result): DetectedBarcode {
-    let minX: number, minY: number, maxX: number, maxY: number;
-
+  private static wrapResult(result: ZXResult): DetectedBarcode {
     //set initial values
     const points = result.getResultPoints();
-    minX = points[0].getX();
-    minY = points[0].getY();
-    maxX = points[0].getX();
-    maxY = points[0].getY();
+    let minX = points[0].getX();
+    let minY = points[0].getY();
+    let maxX = points[0].getX();
+    let maxY = points[0].getY();
 
     points.forEach((point) => {
       const x = point.getX();
