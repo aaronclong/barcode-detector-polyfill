@@ -9,7 +9,7 @@ jobs:
     steps:
       - uses: actions/checkout@v3
 
-      - uses: .github/actions/node-setup
+      - uses: ./.github/actions/node-setup
         with:
           node-version: ${{ env.NODE_VERSION }}
 
