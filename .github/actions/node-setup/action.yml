@@ -1,8 +1,8 @@
 name: node-setup
 description: Setup node with npm caching
 inputs:
-  node-version: # id of input
-    description: "Who to greet"
+  node-version:
+    description: "Node version to use"
     required: true
 runs:
   using: "composite"
