@@ -16,4 +16,4 @@ runs:
 
     - uses: actions/cache@v3
       with:
-        key: ${{ runner.os }}-${{ input.node-version }}-${{ hashFiles('package-lock.json') }}
+        key: ${{ runner.os }}-${{ inputs.node-version }}-${{ hashFiles('package-lock.json') }}
