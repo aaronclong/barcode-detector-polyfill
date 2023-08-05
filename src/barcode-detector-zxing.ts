@@ -6,7 +6,7 @@ import {
   IBarcodeOptions,
   BarcodeFormat,
   DetectedBarcode,
-} from "./BarcodeApi.js";
+} from "./barcode-api.js";
 
 type ZwingBarcodeFormat =
   | BarcodeFormat
