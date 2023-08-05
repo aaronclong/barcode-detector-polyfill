@@ -20,4 +20,4 @@ jobs:
         uses: actions/upload-artifact@v3
         with:
           name: library-build-dist
-          path: "@aaronclong/barcode-detection-polyfill-*.tgz"
+          path: "aaronclong-barcode-detection-polyfill-*.tgz"
