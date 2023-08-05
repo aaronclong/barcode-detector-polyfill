@@ -1,16 +1,17 @@
-name: build library 🚀
+name: build library 🏗️
 on: [push]
+env:
+  NODE_VERSION: 18
+
 jobs:
   build_library:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
 
-      - uses: actions/setup-node@v3
+      - uses: .github/actions/node-setup
         with:
-          node-version: 18
-
-      - run: npm ci
+          node-version: ${{ env.NODE_VERSION }}
 
       - run: npm run build
 

@@ -1,0 +1,18 @@
+name: node-setup
+description: Setup node with npm caching
+inputs:
+  node-version: # id of input
+    description: "Who to greet"
+    required: true
+runs:
+  using: "composite"
+  steps:
+    - uses: actions/setup-node@v3
+      with:
+        node-version: ${{ input.node-version }}
+
+    - run: npm ci
+
+    - uses: actions/cache@v3
+      with:
+        key: ${{ runner.os }}-${{ input.node-version }}-${{ hashFiles('package-lock.json') }}
