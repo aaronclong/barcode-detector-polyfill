@@ -8,5 +8,5 @@ jobs:
         id: changelog
         uses: metcalfc/changelog-generator@v4.1.0
         with:
-          base-ref: "v0.0.0"
+          base-ref: "988cdd58f9181116e1a80283272f63bcb2ee5d45"
           myToken: ${{ secrets.GITHUB_TOKEN }}
