@@ -179,10 +179,8 @@ export class BarcodeDetectorZXing extends BarcodeDetectorAbs<ZXBarcodeFormat> {
 
     const cornerPoints = [p1, p2, p3, p4];
 
-    let barcodeFormat = mapFormatInv.get(result.getBarcodeFormat());
-    if (!barcodeFormat) {
-      barcodeFormat = "unknown";
-    }
+    const barcodeFormat =
+      mapFormatInv.get(result.getBarcodeFormat()) ?? "unknown";
 
     return {
       boundingBox: boundingBox,
