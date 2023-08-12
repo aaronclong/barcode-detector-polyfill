@@ -5,7 +5,8 @@ jobs:
     steps:
       - uses: actions/checkout@v3
       - name: "Build Changelog"
-        uses: mikepenz/release-changelog-builder-action@v4
+        id: changelog
+        uses: metcalfc/changelog-generator@v4.1.0
         with:
-          fromTag: "v0.0.0"
-          token: ${{ secrets.GITHUB_TOKEN }}
+          base-ref: "v0.0.0"
+          myToken: ${{ secrets.GITHUB_TOKEN }}
