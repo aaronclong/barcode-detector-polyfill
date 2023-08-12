@@ -1,0 +1,8 @@
+on: [push]
+jobs:
+  auto_release:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - name: "Build Changelog"
+        uses: mikepenz/release-changelog-builder-action@v4
