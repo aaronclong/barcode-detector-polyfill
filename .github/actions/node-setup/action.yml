@@ -19,3 +19,4 @@ runs:
     - name: Install dependencies
       if: steps.cache.outputs.cache-hit != 'true'
       run: npm ci --ignore-scripts
+      shell: bash
