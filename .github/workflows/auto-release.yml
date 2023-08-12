@@ -7,5 +7,5 @@ jobs:
       - name: "Build Changelog"
         uses: mikepenz/release-changelog-builder-action@v4
         with:
-          fromTag: "2d314b32d0a64cf37e79ea2362db8953af1b12af"
+          fromTag: "v0.0.0"
           token: ${{ secrets.GITHUB_TOKEN }}
