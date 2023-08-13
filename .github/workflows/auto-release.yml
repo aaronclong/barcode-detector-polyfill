@@ -30,6 +30,6 @@ jobs:
         run: npm version ${{ inputs.next_version }} --no-git-tag-version
         shell: bash
 
-      - uses: ./github/workflows/build-library.yml
+      - uses: ./.github/workflows/build-library.yml
         name: build library
         id: library-build
