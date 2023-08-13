@@ -40,8 +40,34 @@ jobs:
           node-version: ${{ env.NODE_VERSION }}
 
       - name: Bump version
-        run: npm version ${{ inputs.next_version }} --no-git-tag-version
         shell: bash
-  build-library:
+        run: |
+          git config user.name github-actions
+          git config user.email github-actions@github.com
+          npm version ${{ inputs.next_version }} -m "build(version): Bump version to %s"
+          git push
+
+  build_library:
     needs: gen_change_log
     uses: ./.github/workflows/build-library.yml
+
+  create_release:
+    permissions:
+      contents: write
+    needs: build_library
+    steps:
+      - name: Create artifacts folder
+        run: mkdir -p artifacts
+        shell: bash
+
+      - uses: actions/download-artifact@v3
+        id: download
+        with:
+          path: artifacts
+
+      - name: Release
+        uses: softprops/action-gh-release@v1
+        with:
+          body_path: artifacts/change-log-frag/CHANGE_LOG_FRAG.md
+          files: |
+            artifacts/library-build-dist/*
