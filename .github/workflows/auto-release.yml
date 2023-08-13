@@ -24,7 +24,7 @@ jobs:
 
       - name: Get the changelog
         run: |
-        echo ${{ steps.changelog.outputs.changelog }} >> CHANGE_LOG_FRAG.md
+          echo ${{ steps.changelog.outputs.changelog }} >> CHANGE_LOG_FRAG.md
 
       - name: Archive CHANGE_LOG_FRAG
         uses: actions/upload-artifact@v3
