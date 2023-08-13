@@ -10,7 +10,7 @@ on:
 env:
   NODE_VERSION: 18
 jobs:
-  auto_release:
+  gen_change_log:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
@@ -29,7 +29,6 @@ jobs:
       - name: Bump version
         run: npm version ${{ inputs.next_version }} --no-git-tag-version
         shell: bash
-
-      - uses: ./.github/workflows/build-library.yml
-        name: build library
-        id: library-build
+  build-library:
+    needs: gen_change_log
+    uses: ./.github/workflows/build-library.yml
