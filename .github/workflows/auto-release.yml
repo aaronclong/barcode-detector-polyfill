@@ -54,7 +54,7 @@ jobs:
   create_release:
     permissions:
       contents: write
-    needs: build_library
+    needs: [gen_change_log, build_library]
     steps:
       - name: Create artifacts folder
         run: mkdir -p artifacts
@@ -71,3 +71,13 @@ jobs:
           body_path: artifacts/change-log-frag/CHANGE_LOG_FRAG.md
           files: |
             artifacts/library-build-dist/*
+
+      - uses: actions/setup-node@v3
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+
+      - name: Publish to NPM
+        shell: bash
+        run: |
+          npm set //registry.npmjs.org/:_authToken=${{ secrets.NPM_TOKEN }}
+          npm publish artifacts/library-build-dist/aaronclong-barcode-detection-polyfill-${{ inputs.next_version }}.tgz
