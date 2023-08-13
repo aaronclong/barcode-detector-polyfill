@@ -1,12 +1,35 @@
-on: [push]
+on:
+  workflow_dispatch:
+    inputs:
+      next_version:
+        description: "Version to bump the package to"
+        required: true
+      prev_version:
+        description: "Prior version to generate changelog from"
+        required: true
+env:
+  NODE_VERSION: 18
 jobs:
   auto_release:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
+
       - name: "Build Changelog"
         id: changelog
         uses: metcalfc/changelog-generator@v4.1.0
         with:
-          base-ref: "988cdd58f9181116e1a80283272f63bcb2ee5d45"
+          base-ref: ${{ inputs.prev_version }}
           myToken: ${{ secrets.GITHUB_TOKEN }}
+
+      - uses: actions/setup-node@v3
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+
+      - name: Bump version
+        run: npm version ${{ inputs.next_version }} --no-git-tag-version
+        shell: bash
+
+      - uses: ./github/workflows/build-library.yml
+        name: build library
+        id: library-build
