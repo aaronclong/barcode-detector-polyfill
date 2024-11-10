@@ -12,15 +12,16 @@ jobs:
   gen_change_log:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
 
       - id: last-release
-        uses: pozetroninc/github-action-get-latest-release@v0.7.0
+        uses: pozetroninc/github-action-get-latest-release@v0.8.0
         continue-on-error: true
         with:
           owner: aaronclong
           repo: barcode-detector-polyfill
           excludes: prerelease, draft
+          token: ${{ secrets.GITHUB_TOKEN }}
 
       - name:
         if: steps.last-release.outcome != 'failure'
@@ -47,7 +48,7 @@ jobs:
           echo "$frag" >> CHANGE_LOG_FRAG.md
 
       - name: Archive CHANGE_LOG_FRAG
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: change-log-frag
           path: "CHANGE_LOG_FRAG.md"
@@ -66,7 +67,7 @@ jobs:
         run: mkdir -p artifacts
         shell: bash
 
-      - uses: actions/download-artifact@v3
+      - uses: actions/download-artifact@v4
         id: download
         with:
           path: artifacts
@@ -78,7 +79,7 @@ jobs:
           files: |
             artifacts/library-build-dist/*
 
-      - uses: actions/setup-node@v3
+      - uses: actions/setup-node@v4
         with:
           node-version: ${{ env.NODE_VERSION }}
 
@@ -86,6 +87,6 @@ jobs:
         shell: bash
         run: |
           version=$(echo "${{github.ref}}" | sed 's/refs\/tags\/v//g')
-          echo "This the version ${version}"
+          echo "This is the version ${version}"
           npm set //registry.npmjs.org/:_authToken=${{ secrets.NPM_TOKEN }}
           npm publish artifacts/library-build-dist/aaronclong-barcode-detection-polyfill-${version}.tgz --access public
