@@ -22,5 +22,5 @@ export default {
     },
   ],
   plugins: [typescript()],
-  external: ["@zxing/library", "@zxing/browser"],
+  external: ["@zxing/library", "@zxing/browser", "@undecaf/zbar-wasm"],
 };
