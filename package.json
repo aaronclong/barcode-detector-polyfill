@@ -34,6 +34,12 @@
     }
   ],
   "exports": {
+    "./barcode-utils": {
+      "types": "./dist/barcode-utils.d.ts",
+      "import": "./dist/barcode-utils.mjs",
+      "require": "./dist/barcode-utils.cjs",
+      "default": "./dist/barcode-utils.mjs"
+    },
     "./barcode-api": {
       "types": "./dist/barcode-api.d.ts",
       "import": "./dist/barcode-api.mjs",
