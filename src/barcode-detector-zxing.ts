@@ -13,7 +13,7 @@ import {
   BarcodeFormat,
   DetectedBarcode,
 } from "./barcode-api.js";
-import { toGrayscaleBuffer } from "./barcode-utils.js";
+import { calcBoundingBox, toGrayscaleBuffer } from "./barcode-utils.js";
 
 type ZXBarcodeFormat =
   | BarcodeFormat
@@ -122,7 +122,7 @@ export class BarcodeDetectorZXing extends BarcodeDetectorAbs<ZXBarcodeFormat> {
       const source = this.decodeImage(image);
       const detectedBarcode = BarcodeDetectorZXing.wrapResult(source);
       detectedBarcodes.push(detectedBarcode);
-    } catch (error) {
+    } catch (_error) {
       //not found or not supported image source
       // TODO: add logger here
     }
@@ -166,19 +166,23 @@ export class BarcodeDetectorZXing extends BarcodeDetectorAbs<ZXBarcodeFormat> {
       maxY = Math.max(y, maxY);
     });
 
-    const boundingBox = new DOMRectReadOnly(
-      minX,
-      minY,
-      maxX - minX,
-      maxY - minY
+    // const boundingBox = new DOMRectReadOnly(
+    //   minX,
+    //   minY,
+    //   maxX - minX,
+    //   maxY - minY
+    // );
+
+    // const p1 = { x: boundingBox.left, y: boundingBox.top };
+    // const p2 = { x: boundingBox.right, y: boundingBox.top };
+    // const p3 = { x: boundingBox.right, y: boundingBox.bottom };
+    // const p4 = { x: boundingBox.left, y: boundingBox.bottom };
+
+    // const cornerPoints = [p1, p2, p3, p4];
+    const [boundingBox, cornerPoints] = calcBoundingBox(
+      { min: minX, max: maxX },
+      { min: minY, max: maxY }
     );
-
-    const p1 = { x: boundingBox.left, y: boundingBox.top };
-    const p2 = { x: boundingBox.right, y: boundingBox.top };
-    const p3 = { x: boundingBox.right, y: boundingBox.bottom };
-    const p4 = { x: boundingBox.left, y: boundingBox.bottom };
-
-    const cornerPoints = [p1, p2, p3, p4];
 
     const barcodeFormat =
       mapFormatInv.get(result.getBarcodeFormat()) ?? "unknown";
