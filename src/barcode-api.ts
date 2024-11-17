@@ -28,6 +28,8 @@ export interface DetectedBarcode {
   cornerPoints: { x: number; y: number }[];
   format: string;
   rawValue: string;
+  orientation?: number;
+  quality?: number;
 }
 
 export interface IBarcodeDetector {
