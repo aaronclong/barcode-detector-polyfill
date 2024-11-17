@@ -35,3 +35,70 @@ export function toGrayscaleBuffer(
   }
   return grayscaleBuffer;
 }
+
+/**
+ * Blog to Image
+ * This heavily inspired from
+ * https://github.com/undecaf/barcode-detector-polyfill/blob/6dadd54095d83f6448f370d179b57479bd58663e/src/BarcodeDetectorPolyfill.ts#L146-L185
+ *
+ * @param blob
+ * @param canvas
+ * @returns
+ */
+export async function blobToImage(
+  blob: Blob,
+  canvas: OffscreenCanvas
+): Promise<ImageData | undefined> {
+  const image = document.createElement("img");
+  image.src = URL.createObjectURL(blob);
+
+  try {
+    await image.decode();
+    const result = canvasToImageData(canvas, image);
+    return result;
+  } finally {
+    URL.revokeObjectURL(image.src);
+  }
+}
+
+/**
+ *
+ * @param source
+ * @param canvas
+ * @returns
+ */
+export function canvasToImageData(
+  canvas: OffscreenCanvas,
+  source?: CanvasImageSource
+): ImageData | undefined {
+  const context = canvas.getContext("2d");
+  if (source) {
+    context?.drawImage(source, 0, 0);
+  }
+
+  return context?.getImageData(0, 0, canvas.width, canvas.height);
+}
+
+type MinMax = { min: number; max: number };
+type CornerPoint = { x: number; y: number };
+
+export function calcBoundingBox(
+  xValues: MinMax,
+  yValues: MinMax
+): [DOMRectReadOnly, CornerPoint[]] {
+  const boundingBox = new DOMRectReadOnly(
+    xValues.min,
+    yValues.min,
+    xValues.max - xValues.min,
+    yValues.max - yValues.min
+  );
+
+  const p1 = { x: boundingBox.left, y: boundingBox.top };
+  const p2 = { x: boundingBox.right, y: boundingBox.top };
+  const p3 = { x: boundingBox.right, y: boundingBox.bottom };
+  const p4 = { x: boundingBox.left, y: boundingBox.bottom };
+
+  const cornerPoints = [p1, p2, p3, p4];
+
+  return [boundingBox, cornerPoints];
+}
