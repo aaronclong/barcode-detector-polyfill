@@ -1,7 +1,6 @@
 import { expect, test } from "vitest";
 import { calcBoundingBox } from "../barcode-utils.js";
 
-// @vitest-environment happy-dom
 test("calcBoundingBox, happy path", () => {
   const xValues = { min: 1, max: 5 };
   const yValues = { min: 2, max: 6 };
