@@ -94,5 +94,16 @@
     "@undecaf/zbar-wasm": ">=0.11.0 <1.0.0",
     "@zxing/browser": ">=0.1.4 <0.2.0",
     "@zxing/library": ">=0.20.0 <1.0.0"
+  },
+  "peerDependenciesMeta": {
+    "@undecaf/zbar-wasm": {
+      "optional": true
+    },
+    "@zxing/browser": {
+      "optional": true
+    },
+    "@zxing/library": {
+      "optional": true
+    }
   }
 }
