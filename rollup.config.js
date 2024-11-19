@@ -4,7 +4,12 @@ export default {
   // https://rollupjs.org/configuration-options/#input
   // https://rollupjs.org/configuration-options/#output-extend
   // https://github.com/rollup/rollup/blob/651e49353eb98bf66e0efd7b27174591a4557880/src/rollup/types.d.ts#L838-L847
-  input: ["src/barcode-api.ts", "src/barcode-detector-zxing.ts"],
+  input: [
+    "src/barcode-api.ts",
+    "src/barcode-detector-zxing.ts",
+    "src/barcode-detector-zbar.ts",
+    "src/barcode-utils.ts",
+  ],
   output: [
     {
       dir: "dist",
@@ -21,6 +26,10 @@ export default {
       },
     },
   ],
-  plugins: [typescript()],
+  plugins: [
+    typescript({
+      exclude: ["**/__tests__/**", "**/*.test.ts"],
+    }),
+  ],
   external: ["@zxing/library", "@zxing/browser", "@undecaf/zbar-wasm"],
 };
