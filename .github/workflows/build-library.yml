@@ -9,7 +9,7 @@ jobs:
   build_library:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
 
       - uses: ./.github/actions/node-setup
         with:
@@ -20,7 +20,7 @@ jobs:
       - run: npm pack
 
       - name: Archive build
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: library-build-dist
           path: "aaronclong-barcode-detection-polyfill-*.tgz"
