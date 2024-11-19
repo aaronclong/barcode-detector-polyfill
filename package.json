@@ -51,6 +51,12 @@
       "import": "./dist/barcode-detector-zxing.mjs",
       "require": "./dist/barcode-detector-zxing.cjs",
       "default": "./dist/barcode-detector-zxing.mjs"
+    },
+    "./barcode-detector-zbar": {
+      "types": "./dist/barcode-detector-zbar.d.ts",
+      "import": "./dist/barcode-detector-zbar.mjs",
+      "require": "./dist/barcode-detector-zbar.cjs",
+      "default": "./dist/barcode-detector-zbar.mjs"
     }
   },
   "scripts": {
@@ -58,7 +64,8 @@
     "install:peers": "npx npm-install-peers -- -y",
     "build": "rollup -c rollup.config.js",
     "lint": "eslint ./src",
-    "test": "vitest"
+    "test": "vitest",
+    "test:ci": "npm run test -- --run"
   },
   "publishConfig": {
     "registry": "https://registry.npmjs.org/"
