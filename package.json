@@ -34,6 +34,12 @@
     }
   ],
   "exports": {
+    "./barcode-utils": {
+      "types": "./dist/barcode-utils.d.ts",
+      "import": "./dist/barcode-utils.mjs",
+      "require": "./dist/barcode-utils.cjs",
+      "default": "./dist/barcode-utils.mjs"
+    },
     "./barcode-api": {
       "types": "./dist/barcode-api.d.ts",
       "import": "./dist/barcode-api.mjs",
@@ -45,13 +51,21 @@
       "import": "./dist/barcode-detector-zxing.mjs",
       "require": "./dist/barcode-detector-zxing.cjs",
       "default": "./dist/barcode-detector-zxing.mjs"
+    },
+    "./barcode-detector-zbar": {
+      "types": "./dist/barcode-detector-zbar.d.ts",
+      "import": "./dist/barcode-detector-zbar.mjs",
+      "require": "./dist/barcode-detector-zbar.cjs",
+      "default": "./dist/barcode-detector-zbar.mjs"
     }
   },
   "scripts": {
     "dev": "rollup --watch -c rollup.config.js",
     "install:peers": "npx npm-install-peers -- -y",
     "build": "rollup -c rollup.config.js",
-    "lint": "eslint ./src"
+    "lint": "eslint ./src",
+    "test": "vitest",
+    "test:ci": "npm run test -- --run"
   },
   "publishConfig": {
     "registry": "https://registry.npmjs.org/"
@@ -62,9 +76,11 @@
     "@typescript-eslint/eslint-plugin": "^6.3.0",
     "@typescript-eslint/parser": "^6.3.0",
     "eslint": "^8.47.0",
+    "happy-dom": "^15.11.6",
     "rollup": "^3.27.0",
     "tslib": "^2.6.1",
-    "typescript": "^5.1.6"
+    "typescript": "^5.1.6",
+    "vitest": "^2.1.5"
   },
   "keywords": [
     "barcode",
@@ -75,7 +91,19 @@
     "qrcode"
   ],
   "peerDependencies": {
-    "@zxing/browser": "^0.1.4",
-    "@zxing/library": "^0.20.0"
+    "@undecaf/zbar-wasm": ">=0.11.0 <1.0.0",
+    "@zxing/browser": ">=0.1.4 <0.2.0",
+    "@zxing/library": ">=0.20.0 <1.0.0"
+  },
+  "peerDependenciesMeta": {
+    "@undecaf/zbar-wasm": {
+      "optional": true
+    },
+    "@zxing/browser": {
+      "optional": true
+    },
+    "@zxing/library": {
+      "optional": true
+    }
   }
 }
